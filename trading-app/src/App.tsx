@@ -1,14 +1,16 @@
-import "./App.css";
+import Dashboard from "./components/Dashboard";
+import RuleSettings from "./components/RuleSettings";
+import TradeHistory from "./components/TradeHistory";
 
-function App() {
+const App: React.FC = () => {
   return (
-    <>
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold text-blue-500">Trading App Test</h1>
-        <p className="mt-2">Tailwind CSS should style this text.</p>
-      </div>
-    </>
+    <div className="container mx-auto">
+      <h1 className="text-3xl p-4">Trading App</h1>
+      <Dashboard />
+      <RuleSettings />
+      <TradeHistory />
+    </div>
   );
-}
+};
 
 export default App;

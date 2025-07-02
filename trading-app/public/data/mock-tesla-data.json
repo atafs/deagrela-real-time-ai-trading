@@ -1,0 +1,6 @@
+[
+  { "timestamp": "2025-07-01T09:00:00Z", "price": 250.5, "volume": 1000 },
+  { "timestamp": "2025-07-01T09:01:00Z", "price": 199.2, "volume": 1200 },
+  { "timestamp": "2025-07-01T09:02:00Z", "price": 284.2, "volume": 900 },
+  { "timestamp": "2025-07-01T09:03:00Z", "price": 279.2, "volume": 2000 }
+]
