@@ -3,3 +3,10 @@ export interface StockData {
   price: number;
   volume: number;
 }
+
+export interface Trade {
+  timestamp: string;
+  action: string;
+  price: number;
+  profitLoss: number;
+}
