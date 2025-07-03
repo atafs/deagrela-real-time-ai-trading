@@ -1,164 +1,192 @@
-# Real-Time AI Chatbot with RAG: Architecture Overview
+# Trading App: Sprint 0 Architecture Overview
 
-This document outlines the architecture for a **Real-Time AI Chatbot with Retrieval-Augmented Generation (RAG)**, designed to allow users to upload documents (e.g., PDFs) and ask questions answered using document context. The architecture is optimized for a 1–2 week development timeline, focusing on simplicity, functionality, and core RAG capabilities.
+This document outlines the architecture for Sprint 0 of the **Trading App**, a platform for automated Tesla stock trading. Sprint 0 focuses on building a responsive React TypeScript single-page application with mock data to simulate user interactions, laying the foundation for future backend integration and real-time trading. The architecture is designed for a 1–2 week development timeline, prioritizing functionality, type safety, and CV impact.
+
+---
+
+## Changelog (Initial Sprint)
+
+- **Added**: React TypeScript project setup with Vite and Tailwind CSS.
+- **Added**: Mock Tesla stock data with TypeScript interfaces for type safety.
+- **Added**: UI components for dashboard, rule settings, and trade history.
+- **Added**: Responsive design with Tailwind CSS and Chrome DevTools testing.
+- **Added**: Git repository for version control.
+- **Planned**: Backend API integration with broker sandbox (Sprint 1).
 
 ---
 
 ## Architecture Components
 
-### 1. Frontend (React)
+### 1. Frontend (React with TypeScript)
 
-- **Purpose**: User interface for file uploads, real-time chat, and response display.
+- **Purpose**: Deliver a responsive single-page application for user interaction with mock Tesla stock data.
 - **Components**:
-  - **File Upload**: Input field for PDF uploads, using `FormData` for backend communication.
-  - **Chat Interface**: Conversational UI for user messages and bot responses, styled with CSS.
-  - **Real-Time Messaging**: Socket.IO client for sending queries and receiving responses.
-- **Tech**: React, Socket.IO-client, Axios, CSS.
+  - **Dashboard**: Displays current price and a line chart of price trends.
+  - **Rule Settings**: Form for setting buy/sell thresholds (e.g., buy at £240, sell at £260).
+  - **Trade History**: Table showing simulated trade details (timestamp, action, price, profit/loss).
+  - **App Container**: Combines components in a responsive layout.
+- **Tech**: React, TypeScript, Tailwind CSS, Axios, `chart.js`, `react-chartjs-2`.
 - **Features**:
-  - File upload button (drag-and-drop optional).
-  - Scrollable chat window with message history.
-  - Input field and "Send" button for questions.
-- **Time Estimate**: 3–4 days.
+  - Mock data fetching with Axios for simulated Tesla stock prices.
+  - Line chart visualization using `react-chartjs-2` for price trends.
+  - Form input validation for buy/sell thresholds (console logging for now).
+  - Responsive design with Tailwind CSS classes (e.g., `sm:`, `md:`).
+- **Time Estimate**: 4–5 days.
 
-### 2. Backend (Node.js + Express + Socket.IO)
+### 2. Data Layer (Mock Data)
 
-- **Purpose**: Manages file processing, document embedding, real-time communication, and LLM integration.
+- **Purpose**: Simulate Tesla stock data for UI development and testing.
 - **Components**:
-  - **File Processing**: Extracts text from PDFs using `pdf-parse`.
-  - **Embedding Generation**: Converts text to vector embeddings via Hugging Face’s `sentence-transformers` API.
-  - **Vector Storage**: Stores embeddings in Pinecone for retrieval.
-  - **Query Processing**:
-    - Converts user queries to embeddings.
-    - Retrieves relevant document chunks from Pinecone via similarity search.
-    - Combines chunks with query and sends to LLM (e.g., xAI Grok API) for response generation.
-  - **Real-Time Communication**: Socket.IO for live chat.
-- **Tech**: Node.js, Express, Socket.IO, `pdf-parse`, Pinecone, Axios.
+  - **TypeScript Interface**: `StockData` (`timestamp`, `price`, `volume`) for type safety.
+  - **Mock Data File**: JSON file (`mock-tesla-data.json`) with sample stock data.
+  - **Data Fetching Utility**: Axios-based utility (`fetchMockData`) to load mock data.
+- **Tech**: TypeScript, JSON, Axios.
 - **Features**:
-  - REST endpoint (`/upload`) for PDF uploads.
-  - Socket.IO events (`chat`, `response`) for query-response flow.
-  - Pinecone integration for vector storage/retrieval.
-  - LLM API for contextual answers.
-- **Time Estimate**: 5–7 days.
-
-### 3. Database (Pinecone)
-
-- **Purpose**: Stores document embeddings for scalable retrieval.
-- **Setup**:
-  - Create Pinecone index (`docs`) for vectors.
-  - Upsert embeddings with metadata (e.g., text, IDs).
-  - Query index with user question embeddings for top-k chunks.
-- **Tech**: Pinecone (vector database).
-- **Features**:
-  - Stores document embeddings.
-  - Supports similarity search for RAG context.
+  - Type-safe data structures to prevent runtime errors.
+  - Static JSON file for easy modification and testing.
+  - Asynchronous data fetching to mimic future API calls.
 - **Time Estimate**: 1–2 days.
 
-### 4. External APIs
+### 3. Version Control
 
-- **Hugging Face API**: Generates embeddings for documents and queries.
-- **xAI Grok API** (or alternative LLM): Generates responses based on document chunks and queries.
-- **Tech**: Axios for API requests.
-- **Time Estimate**: 1 day.
-
-### 5. Deployment (Optional)
-
-- **Purpose**: Host application for public access.
+- **Purpose**: Track codebase changes and enable collaboration.
 - **Setup**:
-  - Backend: Render or Heroku.
-  - Frontend: Vercel or Netlify.
-  - Configure environment variables for API keys.
-- **Time Estimate**: 1–2 days (if included).
+  - Initialized Git repository with `.gitignore` for `node_modules` and sensitive files.
+  - Committed initial codebase and pushed to a remote repository (e.g., GitHub).
+- **Tech**: Git, GitHub.
+- **Features**:
+  - Structured commit messages (e.g., “Add Dashboard component with mock data”).
+  - `.gitignore` to exclude unnecessary files.
+- **Time Estimate**: 0.5 days.
 
 ---
 
 ## Data Flow
 
-1. **Document Upload**:
-   - Frontend sends PDF to backend (`/upload`).
-   - Backend extracts text (`pdf-parse`), generates embeddings (Hugging Face API), and stores in Pinecone.
-2. **User Query**:
-   - Frontend sends query via Socket.IO (`chat`).
-   - Backend converts query to embedding, queries Pinecone, and sends context + query to LLM.
-   - LLM response sent to frontend via Socket.IO (`response`).
-3. **Real-Time Display**:
-   - Frontend updates chat UI with query and response.
+1. **Mock Data Loading**:
+   - Frontend (`Dashboard.tsx`) calls `fetchMockData` (Axios) to retrieve `mock-tesla-data.json`.
+   - Data is parsed into `StockData[]` and stored in component state.
+2. **Dashboard Display**:
+   - Current price is extracted from the latest `StockData` entry.
+   - Line chart is rendered with timestamps (x-axis) and prices (y-axis).
+3. **Rule Settings**:
+   - User inputs buy/sell thresholds in `RuleSettings.tsx`.
+   - Form submission logs data to console (backend integration planned for Sprint 4).
+4. **Trade History**:
+   - `TradeHistory.tsx` renders a static array of simulated trades in a table.
+   - Table columns include timestamp, action, price, and profit/loss.
 
 ---
 
 ## Architecture Diagram
 
-![Architecture Diagram](https://kroki.io/plantuml/svg/eNp9U8FS4kAQvecr-kaoMlLlkcOWIKJUuWtWwl4wh2HSkpHJTKpnIvD39gSFbImeknT3e9Pvvcm184J8U2l4QqGTTFUIoxnclMKvrIcRyVJ5lL4hjKIeTPBFGQRpq9oaNN5Fy4VDgnhMdssvg1Fd9_NoOSVrPJri2cTMK_0FzK3coL-cPSZSK0b2n00CU6URFrW2ooDFLFROW4QVmGksGNcS_bEFXr66C7jd1YTOdThbsnQyhQx3nvue-MxQu61WWBTKrOEOTSj8bZD2kJKVzMD1w5mO1TgMM3wiw5GM0DBHelM8l3eUu2aVnNTDVvlSGfgCOccCSfILlimzSEazoH_sqyWYjPv59_P3zXod9p8KGTBHQe4n0I4jvCO7gVHKrsYPD7_7-X_xGV7CKxZ9Nr8DyWeGOQzhPstSiDtxDSF9nGcwaNov9v-YBcQhuSH0JD96gG8h7KjD1pJ_xPrJPTjCo1OrHTwjcXjym_XBjdDaBXVzv9fBqhc2VWpByu8jt1GmFiQqqKyxsiTLV8tTg53OMc9AgMA_w1Wn60pR2G3LK7Tr4mpxuFpXUXTNCzPuHVfoIhA=)
+The architecture is frontend-focused with mock data, laying the groundwork for future backend integration. Below is a PlantUML diagram.
+
+```
+@startuml class
+skinparam monochrome true
+skinparam defaultFontSize 14
+
+class User as "User (Browser)"
+class Frontend as "Frontend\n(React, TypeScript)\n- Dashboard\n- Rule Settings\n- Trade History"
+class MockData as "Mock Data\n(JSON)\n- mock-tesla-data.json"
+
+User -down-> Frontend : HTTP (Interact with UI)
+Frontend <--> MockData : Axios (Fetch mock data)
+
+note right of Frontend
+  - Responsive UI with Tailwind CSS
+  - TypeScript for type safety
+  - Components: Dashboard, Rule Settings, Trade History
+end note
+
+note right of MockData
+  - Static JSON with Tesla stock data
+  - TypeScript interface: StockData
+end note
+
+@enduml
+```
+
+![Architecture Diagram](https://kroki.io/plantuml/svg/eNpdUk1vwjAMvedXWJxAopMm7VRNExsIwaR9iJYbF691aUaboMSMsV8_JwM6uPnF9nvPTxl5Rse7toGiQe-V32izRYcttNbYona2JWC3o3-dkircNTy1hjP9Q3B7p1TchqUnB-ihF4v-k7N7KQa9Y3vqZIVMGUdOYGX6C8KCh5AftpQVTm95sDIJTNDXHxZdGcBi1xBkxKzN2oeH3GFJMNOerTucBF5ssZkgYxQIAAIShefs7TWStvKYMPkGk1JaN5_emp5S0W9S2r1JHjqbKczy_B36c4FOLMJecw3L-UCdR-4TWTjLpvD4ra2H_pS4qKMYBJmBUsYygdPrmsFWZwkFILeR31rj9RcJ959GjrrZa-EfZ1mc6bKByjpggeCxIj7E9ti2QkGGfdrlNrxMbXiZmQr2g6trb6drInHGyLqAkN_RWcgOhOF42rU7HbKqsKBUdk9MndRISvlt6hdpcdb_)
 
 ---
 
 ## Sequence Diagram
 
-Below is a sequence diagram depicting the interactions for document upload and query processing, using Mermaid syntax.
+The sequence diagram illustrates the interaction between the user, frontend, and mock data layer, using Mermaid syntax.
 
 ```mermaid
 sequenceDiagram
     participant U as User
     participant F as Frontend (React)
-    participant B as Backend (Node.js)
-    participant P as Pinecone
-    participant H as Hugging Face API
-    participant G as xAI Grok API
+    participant M as Mock Data (JSON)
 
-    %% Document Upload
-    U->>F: Upload PDF
-    F->>B: POST /upload (PDF)
-    B->>B: Extract text (pdf-parse)
-    B->>H: Generate embeddings
-    H-->>B: Return embeddings
-    B->>P: Upsert embeddings
-    P-->>B: Confirm upsert
-    B-->>F: Upload success
-    F-->>U: Show success message
+    %% Dashboard Loading
+    U->>F: Open Dashboard
+    F->>M: Fetch mock-tesla-data.json (Axios)
+    M-->>F: Return StockData[]
+    F-->>U: Display price and line chart
 
-    %% Query Processing
-    U->>F: Send question
-    F->>B: Socket.IO 'chat' (question)
-    B->>H: Generate query embedding
-    H-->>B: Return embedding
-    B->>P: Query top-k chunks
-    P-->>B: Return relevant chunks
-    B->>G: Send context + question
-    G-->>B: Return response
-    B->>F: Socket.IO 'response'
-    F-->>U: Display response
+    %% Rule Settings
+    U->>F: Input buy/sell thresholds
+    F->>F: Log to console
+    F-->>U: Show form submission success
+
+    %% Trade History
+    U->>F: View Trade History
+    F-->>U: Display static trade table
 ```
 
-![Sequence Diagram](https://kroki.io/mermaid/svg/eNp9ks9SgzAQxu8-xV6c4jjUO4fOFBHoxWKRB4hhS5GS0PzR9u1NgCIURw4c9vdtst-3kXjSyCgGJSkEqe_AfA0RqqRlQ5iCDIiETKKYkdCSUHCmkOXg7JBQ9TBT-VblE1q1olee4_JTzmWJlSUlQ8oZzmhsaayLomQFhIQirJPNTBVZ1Xm9gUjwqlW0kvt7CDjVNVo3zZGTvC1n7moVen0FkiBsq6Gp-h4k2_QdnnTHHAO7if2OvpyVMGZB4VmB0-R714wh8VcTexAhQ0EUAtYfmOdmcNni2O3O2KHSgt1S25zYoUzg6hYmfeszZ_tS1KBbVd83cSM1pShl78igzIP0wL-vAGrzIwUOAb1pFBdIBLfUXDhOKLWbM49EqpKzcUgpN1tVy80WFvRA1AKcq-rvJE7tJYOpf-MYp9ENp3jjVkAPmlXTOPpWgUf8ss9gJLEHRL0Dah-q2dfj1Et0e4psOJM4tIcTn1e8mEQblLI5ksvQ_ANhWgED)
+![Sequence Diagram](https://kroki.io/mermaid/svg/eNptkT1PwzAQhvf-ilsqtUNg71AJqYoANVRqCAtiuDhHYnB8wXdW6b_HTVEpFI9-Xr8fstBHJG9oZbEN2E8gnQGDWmMH9AoVoEAlFC5IfiB5YK_kG5htCY3OL1TFQVWweYcVKsLsvtw8zCejbDpNd9LVjKGBNWNjfTuCKlsu8wVsBvI_ipHkiRQLyElNB31yzZTEYdYk76s3YQ-zm0_LcuxRZEejLWkMHkpNDw4tnl--zRKuFrCyMjjcwxCsIcA0xllPYLo049R0Gx1BSaqppJy3vPNDVKjj_lrIOdAukHTsGjkVTqI1t6AMhr2wo1_pZcc7eOXQg8S6tyI2rZBoDImc0h8DNgS3VpTD_jz9ydLuH_p3miimHwEdhYq1oy_7RpqM)
 
 ---
 
 ## Development Plan (1–2 Weeks)
 
 - **Week 1**:
-  - **Day 1–2**: Backend setup (Node.js, Express, Socket.IO), integrate `pdf-parse`.
-  - **Day 3–4**: Configure Pinecone and Hugging Face API for embeddings.
-  - **Day 5**: Build frontend (React) with file upload and chat UI.
+  - **Day 1**: Set up React TypeScript project with Vite and Tailwind CSS.
+  - **Day 2**: Create mock data (`mock-tesla-data.json`) and TypeScript interface (`StockData`).
+  - **Day 3–4**: Build `Dashboard.tsx` with price display and line chart.
+  - **Day 5**: Develop `RuleSettings.tsx` and `TradeHistory.tsx`.
 - **Week 2**:
-  - **Day 6–7**: Integrate Socket.IO for real-time chat and LLM API.
-  - **Day 8–9**: Test end-to-end flow, polish UI with CSS.
-  - **Day 10**: (Optional) Deploy to cloud, finalize documentation.
-  - **Buffer**: 1–2 days for debugging/testing.
+  - **Day 6**: Combine components in `App.tsx` and style with Tailwind CSS.
+  - **Day 7**: Test responsiveness in Chrome DevTools (mobile and desktop).
+  - **Day 8**: Initialize Git repository, commit, and push to remote.
+  - **Buffer**: 1–2 days for debugging and refinements.
 
 ---
 
-## Simplifications for Timeline
+## Sprint 0 Requirements
 
-- Support only PDFs (exclude TXT, DOCX).
-- Use Hugging Face’s hosted API instead of local `sentence-transformers`.
-- Implement basic RAG (skip query expansion).
-- Focus on functional UI (skip animations, drag-and-drop).
-- Use xAI Grok API for LLM (see https://x.ai/api for access).
-- Defer deployment to post-MVP if time-constrained.
+- **Must-Have**:
+  - React TypeScript project with Tailwind CSS.
+  - Mock Tesla stock data with TypeScript interface.
+  - Dashboard with price and line chart.
+  - Rule settings form for buy/sell thresholds.
+  - Trade history table with simulated trades.
+  - Responsive design across mobile and desktop.
+- **Nice-to-Have**:
+  - Basic form input validation (e.g., positive numbers).
+  - Additional mock data entries for testing.
+- **Out of Scope**:
+  - Backend API integration (planned for Sprint 4).
+  - Real-time data fetching (planned for Sprint 2).
 
 ---
 
 ## CV Highlights
 
-- **Technologies**: Node.js, Express, React, Socket.IO, Pinecone, Hugging Face API, xAI Grok API.
-- **Skills**: RAG, vector databases, real-time systems, document processing, API integration.
-- **Impact**: Built a 2025-trending AI chatbot with RAG, showcasing advanced AI expertise.
+- **Technologies**: React, TypeScript, Tailwind CSS, Axios, `chart.js`, `react-chartjs-2`, Git.
+- **Skills**: Frontend development, TypeScript type safety, responsive UI design, data visualization, version control.
+- **Impact**: Built a responsive React TypeScript UI prototype for a 2025-trending automated trading app, demonstrating expertise in modern frontend development and type-safe architecture.
+- **Documentation**: Created a comprehensive architectural document with diagrams, showcasing best practices for maintainability and stakeholder communication.
+
+---
+
+## Documentation Best Practices
+
+- **Version Control**: Stored codebase in a Git repository with clear commit messages (e.g., “Add mock data and TypeScript interfaces”).
+- **Changelog**: Included a changelog to document initial sprint features.
+- **Clarity**: Used Markdown with PlantUML and Mermaid diagrams for stakeholder readability.
+- **LinkedIn Post Idea**: “Kicked off my Trading App project with a responsive React TypeScript UI in Sprint 0, featuring mock Tesla stock data and type-safe design. Ready for backend integration! #React #TypeScript #FinTech”
